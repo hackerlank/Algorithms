@@ -20,3 +20,16 @@ approaches
 * Provable convergence for convex problems
 
 ### Basic Usage
+
+#### C++ Interface
+
+#### Matlab Interface
+The min\_pald.m implements the min\_pald() function, which takes the following parameters:
+* @func: a vector function in R<sup>m x n</sup>, the output vector represents [ f<sub>1</sub>(x),f<sub>2</sub>(x), ..., * X0: an initial point, x.
+* niter: number of iterations
+* bs: minibatch size
+* beta: perturbation scaling factor
+* alpha: step size paremeter
+* lambda: regularization factor
+* tau: kernel bandwidth
+* R: constant vector representing r<sub>i</sub>
