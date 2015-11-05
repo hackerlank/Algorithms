@@ -10,8 +10,8 @@ f<sub>2</sub>(x), ..., f<sub>k</sub>(x) ]
 
 s.t. E<sub>x</sub>[f<sub>i</sub>(x)] <= r<sub>i</sub>,
 
-where f<sub>i</sub>(x) are scalar functions, and the minimization is
-in the Pareto-improving sense.
+where f<sub>i</sub>(x) are scalar functions, and r<sub>i</sub> are constants.
+The minimization is in the Pareto-improving sense.
 
 ### Features
 * Much smaller sample complexity than evolutionary algorithm based
