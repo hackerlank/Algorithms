@@ -46,7 +46,7 @@ point in the domain.
 vector y with the given input vector x.
 
 #### Matlab Interface
-The min\_pald.m implements the min\_pald() function, which takes the following parameters:
+The pald.m implements the pald() function, which takes the following parameters:
 * @func: a vector function F: R<sup>n</sup> -> R<sup>k</sup>, the output vector represents [ f<sub>1</sub>(x),f<sub>2</sub>(x), ...,f<sub>k</sub>(x) ]
 * X0: an initial point, x.
 * niter: number of iterations
