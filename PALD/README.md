@@ -23,7 +23,7 @@ approaches
 
 #### C++ Interface
 The C++ interface is provided in pald.hpp:
-```
+``` c++
 class pald {
 public:
     struct problem {
