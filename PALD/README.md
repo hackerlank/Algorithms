@@ -22,6 +22,28 @@ approaches
 ### Basic Usage
 
 #### C++ Interface
+The C++ interface is provided in pald.hpp:
+```
+class pald {
+public:
+    struct problem {
+	// Project the proposed decision vector @x to the nearest
+	// point The @x will be replaced with the new point.
+	virtual void proj(gsl_vector *x) = 0;
+	// Evaluate the value of the objective vector at @x, and store
+	// the objective vector in @y.
+	virtual void eval(const gsl_vector *x, gsl_vector *y) = 0;
+    };
+};
+
+```
+Here, pald::problem is the abstract base class of an optimization
+problem. For this problem, the user implements the following two
+methods:
+* proj(gsl_vector *x): map (in-place modification) x to a feasible
+point in the domain.
+* eval(const gsl_vector *x, gsl_vector *y): compute the objective
+vector y with the given input vector x.
 
 #### Matlab Interface
 The min\_pald.m implements the min\_pald() function, which takes the following parameters:
@@ -34,3 +56,8 @@ The min\_pald.m implements the min\_pald() function, which takes the following p
 * lambda: regularization factor
 * tau: kernel bandwidth
 * R: constant vector representing r<sub>i</sub>
+
+### Requirements
+* ulib: https://code.google.com/p/ulib/
+* gsl: http://www.gnu.org/software/gsl/gsl.html
+* glpk: http://www.gnu.org/software/glpk/
