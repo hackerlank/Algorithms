@@ -20,6 +20,8 @@ approaches
 * Provable convergence for convex problems
 
 ### Basic Usage
+#### Example
+See test.cpp.
 
 #### C++ Interface
 The C++ interface is provided in pald.hpp:
