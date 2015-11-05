@@ -25,7 +25,8 @@ approaches
 
 #### Matlab Interface
 The min\_pald.m implements the min\_pald() function, which takes the following parameters:
-* @func: a vector function in R<sup>m x n</sup>, the output vector represents [ f<sub>1</sub>(x),f<sub>2</sub>(x), ..., * X0: an initial point, x.
+* @func: a vector function F: R<sup>n</sup> -> R<sup>k</sup>, the output vector represents [ f<sub>1</sub>(x),f<sub>2</sub>(x), ...,f<sub>k</sub>(x) ]
+* X0: an initial point, x.
 * niter: number of iterations
 * bs: minibatch size
 * beta: perturbation scaling factor
