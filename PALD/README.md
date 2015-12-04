@@ -19,6 +19,9 @@ approaches
 * Resistance to noise in objectives and constraints
 * Provable convergence for convex problems
 
+### Applications
+PALD is used in [Tempo](../DistributedSys/Tempo) for solving optimal resource allocation problems. The [paper](http://arxiv.org/pdf/1512.00757.pdf) includes the analysis of PALD.
+
 ### Basic Usage
 #### Example
 See test.cpp.
