@@ -1,11 +1,11 @@
 #include <math.h>
 #include <stdio.h>
 #include <ulib/math_rng_normal.h>
-#include "pald.hpp"
+#include "mspd.h"
 
 normal_rng rng;
 
-struct problem : public pald::problem {
+struct problem : public mspd::problem {
     void proj(gsl_vector *x)
     {
 	printf("(");
@@ -40,7 +40,7 @@ struct problem : public pald::problem {
 
 int main()
 {
-    pald solver;
+    mspd solver;
     problem prb;
 
     normal_rng_init(&rng);
@@ -55,7 +55,7 @@ int main()
 
     //prb.eval(x0, ub);
 
-    solver(&prb, x0, 100, 15, 1.0, 0.5, 0.001, 10.0, ub, xval, fval);
+    solver(&prb, x0, 100, 15, 1.0, 0.1, 0.001, 10.0, ub, xval, fval);
 
     printf("Best obj: %lf %lf %lf\n",
 	   gsl_matrix_get(fval, 0, 99),
