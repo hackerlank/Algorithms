@@ -7,4 +7,4 @@ s.t. E<sub>x</sub>[f<sub>i</sub>(x)] <= r<sub>i</sub>, for i = 2,3,...,k
 To see why the above problem does not guarantee a Pareto-optimal solution, suppose that x<sub>1</sub> and x<sub>2</sub> yield the same f<sub>1</sub>(x) but different f<sub>2</sub>(x) values: f<sub>2</sub>(x<sub>1</sub>) < f<sub>2</sub>(x<sub>2</sub>). Thus, x<sub>2</sub> is a solution to the above problem but not a Pareto-optimal one. By constrast, [PALD](https://github.com/ZilongTan/Algorithms/tree/master/PALD) gives a Pareto-optmal solution.
 
 ### Usage
-Matlab implementation and C++ implementation are both provided, of which the interfaces are the same as [PALD](https://github.com/ZilongTan/Algorithms/tree/master/PALD).
+Both the Matlab implementation and the C++ implementation are provided, of which the interfaces are the same as [PALD](https://github.com/ZilongTan/Algorithms/tree/master/PALD).
