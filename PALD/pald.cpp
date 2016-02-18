@@ -13,7 +13,6 @@
  * that file is legally binding.
  */
 
-#include <assert.h>
 #include <time.h>
 #include <math.h>
 #include <gsl/gsl_blas.h>
@@ -22,6 +21,7 @@
 #include <glpk.h>
 #include <ulib/util_log.h>
 #include <ulib/util_algo.h>
+#include <ulib/util_macro.h>
 #include <ulib/math_rand_prot.h>
 #include "pald.hpp"
 
@@ -45,7 +45,7 @@ double pald::unif()
 
 double pald::kernel(const gsl_vector *vx, double tau)
 {
-    assert(tau > 0);
+    ULIB_ASSERT(tau > 0);
 
     double nrm = gsl_blas_dnrm2(vx);
     return exp(-nrm*nrm/2.0/tau/tau);
@@ -53,7 +53,7 @@ double pald::kernel(const gsl_vector *vx, double tau)
 	
 void pald::positive_components(gsl_matrix *mp, const gsl_matrix *m)
 {
-    assert(mp->size1 == m->size1 && mp->size2 == m->size2);
+    ULIB_ASSERT(mp->size1 == m->size1 && mp->size2 == m->size2);
     
     for (size_t i = 0; i < mp->size1; ++i) {
 	for (size_t j = 0; j < mp->size2; ++j) {
@@ -65,7 +65,7 @@ void pald::positive_components(gsl_matrix *mp, const gsl_matrix *m)
 
 void pald::negative_components(gsl_matrix *mn, const gsl_matrix *m)
 {
-    assert(mn->size1 == m->size1 && mn->size2 == m->size2);
+    ULIB_ASSERT(mn->size1 == m->size1 && mn->size2 == m->size2);
     
     for (size_t i = 0; i < mn->size1; ++i) {
 	for (size_t j = 0; j < mn->size2; ++j) {
@@ -83,7 +83,7 @@ void pald::perturb(problem *prob,
 		   gsl_matrix *mny,
 		   gsl_vector *vt)
 {
-    assert(mdx->size1 == mny->size2 && mdx->size2 == vt->size);
+    ULIB_ASSERT(mdx->size1 == mny->size2 && mdx->size2 == vt->size);
 
     double range = beta * pow(iter, -1.0/3.0);
 
@@ -106,7 +106,7 @@ pald::ortho_proj(const gsl_matrix *mdx,
 		 double tau,
 		 gsl_matrix *mp)
 {
-    assert(mp->size1 == mdx->size2 && mp->size2 == mdx->size1);
+    ULIB_ASSERT(mp->size1 == mdx->size2 && mp->size2 == mdx->size1);
 
     int signum;
     gsl_matrix *m1 = gsl_matrix_calloc(mdx->size1, mdx->size1); // kernel matrix
@@ -116,7 +116,7 @@ pald::ortho_proj(const gsl_matrix *mdx,
     gsl_permutation *perm = gsl_permutation_alloc(mdx->size2);
     gsl_vector_view vd;
     
-    assert(m1 && m2 && m3 && m4 && perm);
+    ULIB_ASSERT(m1 && m2 && m3 && m4 && perm);
 
     // compute the diagonal weight matrix
     vd = gsl_matrix_diagonal(m1);
@@ -126,13 +126,13 @@ pald::ortho_proj(const gsl_matrix *mdx,
     }
 
     vd = gsl_matrix_diagonal(m2);
-    assert(!gsl_blas_dgemm(CblasTrans,   CblasNoTrans, 1.0, mdx, m1, 0.0, mp));
-    assert(!gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, mp, mdx, 0.0, m2));
-    assert(!gsl_vector_add_constant(&vd.vector, lambda));
-    assert(!gsl_linalg_LU_decomp(m2, perm, &signum));
-    assert(!gsl_linalg_LU_invert(m2, perm, m3));
-    assert(!gsl_blas_dgemm(CblasNoTrans, CblasTrans,   1.0, m3, mdx, 0.0, m4));
-    assert(!gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, m4, m1,  0.0, mp));
+    ULIB_ASSERT(!gsl_blas_dgemm(CblasTrans,   CblasNoTrans, 1.0, mdx, m1, 0.0, mp));
+    ULIB_ASSERT(!gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, mp, mdx, 0.0, m2));
+    ULIB_ASSERT(!gsl_vector_add_constant(&vd.vector, lambda));
+    ULIB_ASSERT(!gsl_linalg_LU_decomp(m2, perm, &signum));
+    ULIB_ASSERT(!gsl_linalg_LU_invert(m2, perm, m3));
+    ULIB_ASSERT(!gsl_blas_dgemm(CblasNoTrans, CblasTrans,   1.0, m3, mdx, 0.0, m4));
+    ULIB_ASSERT(!gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, m4, m1,  0.0, mp));
 
     gsl_matrix_free(m1);
     gsl_matrix_free(m2);
@@ -148,11 +148,11 @@ pald::jacob_trans(const gsl_matrix *mp,
 		  gsl_matrix *mjt)
 {
     gsl_matrix *m = gsl_matrix_alloc(mny->size1, mny->size2);
-    assert(m);
+    ULIB_ASSERT(m);
 
     gsl_matrix_memcpy(m, mny);
     gsl_matrix_sub(m, my);
-    assert(!gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, mp, m, 0.0, mjt));
+    ULIB_ASSERT(!gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, mp, m, 0.0, mjt));
 
     gsl_matrix_free(m);    
 }
@@ -166,21 +166,21 @@ pald::proxy_grad(const gsl_matrix *mp,
 		 double rho,
 		 gsl_vector *vds)
 {
-    assert(mp->size1 == vds->size);    
-    assert(mp->size2 == mny->size2);
-    assert(mny->size1 == my->size1);
-    assert(mny->size2 == my->size2);
-    assert(mny->size1 == mub->size1);
-    assert(mny->size2 == mub->size2);
-    assert(mub->size1 == vw->size);
-    assert(vw->size == mny->size1);
+    ULIB_ASSERT(mp->size1 == vds->size);    
+    ULIB_ASSERT(mp->size2 == mny->size2);
+    ULIB_ASSERT(mny->size1 == my->size1);
+    ULIB_ASSERT(mny->size2 == my->size2);
+    ULIB_ASSERT(mny->size1 == mub->size1);
+    ULIB_ASSERT(mny->size2 == mub->size2);
+    ULIB_ASSERT(mub->size1 == vw->size);
+    ULIB_ASSERT(vw->size == mny->size1);
     
     gsl_vector *vgs = gsl_vector_alloc(mny->size2);
     gsl_matrix *md  = gsl_matrix_alloc(mny->size1, mny->size2);
     gsl_matrix *m1  = gsl_matrix_alloc(mny->size1, mny->size2);
     gsl_matrix *m2  = gsl_matrix_alloc(mny->size1, mny->size2);
     
-    assert(vgs && md && m1 && m2);
+    ULIB_ASSERT(vgs && md && m1 && m2);
 
     gsl_matrix_memcpy(md, mny);
     gsl_matrix_sub(md, my);
@@ -203,8 +203,8 @@ pald::proxy_grad(const gsl_matrix *mp,
     gsl_matrix_scale(m1, rho);
     gsl_matrix_sub(md, m1);
     
-    assert(!gsl_blas_dgemv(CblasTrans,   1.0, md, vw,  0.0, vgs));
-    assert(!gsl_blas_dgemv(CblasNoTrans, 1.0, mp, vgs, 0.0, vds));
+    ULIB_ASSERT(!gsl_blas_dgemv(CblasTrans,   1.0, md, vw,  0.0, vgs));
+    ULIB_ASSERT(!gsl_blas_dgemv(CblasNoTrans, 1.0, mp, vgs, 0.0, vds));
 
     gsl_vector_free(vgs);
     gsl_matrix_free(md);
@@ -216,7 +216,7 @@ void pald::comp_weight(const gsl_matrix *mjt,
 		       const gsl_vector *vni,
 		       gsl_vector *vw)
 {
-    assert(vni->size == mjt->size2);
+    ULIB_ASSERT(vni->size == mjt->size2);
 
     int rc;
     size_t nv = gsl_blas_dasum(vni);
@@ -224,7 +224,7 @@ void pald::comp_weight(const gsl_matrix *mjt,
     if (nv) {
 	gsl_matrix *mjnd = gsl_matrix_alloc(mjt->size1, nv);
 	gsl_matrix *m    = gsl_matrix_alloc(nv, mjt->size2);
-	assert(mjnd && m);
+	ULIB_ASSERT(mjnd && m);
 
 	size_t t = 0;
 	for (size_t j = 0; j < mjt->size2; ++j) {
@@ -234,9 +234,9 @@ void pald::comp_weight(const gsl_matrix *mjt,
 		gsl_vector_memcpy(&dcol.vector, &scol.vector);
 	    }
 	}
-	assert(t == nv);
+	ULIB_ASSERT(t == nv);
 
-	assert(!gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0, mjnd, mjt, 0.0, m));
+	ULIB_ASSERT(!gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0, mjnd, mjt, 0.0, m));
 
 	glp_prob *lp = glp_create_prob();
 
@@ -305,13 +305,13 @@ pald::comp_rho(const gsl_matrix *mjt,
 {
     double rho;
 
-    assert(mjt->size2 == vni->size &&
+    ULIB_ASSERT(mjt->size2 == vni->size &&
 	   mjt->size2 == vw->size);
 
     size_t nv = gsl_blas_dasum(vni);
 
     gsl_vector *vri = gsl_vector_alloc(vni->size);
-    assert(vri);
+    ULIB_ASSERT(vri);
     for (size_t j = 0; j < vri->size; ++j) {
 	gsl_vector_const_view col = gsl_matrix_const_column(mjt, j);
 	gsl_vector_set(vri, j, gsl_vector_get(vni, j) &&
@@ -322,7 +322,7 @@ pald::comp_rho(const gsl_matrix *mjt,
 
     if (nr) {
 	gsl_matrix *mjnd = gsl_matrix_alloc(mjt->size1, nv);
-	assert(mjnd);
+	ULIB_ASSERT(mjnd);
 	for (size_t t = 0, j = 0; j < vni->size; ++j) {
 	    if (gsl_vector_get(vni, j)) {
 		gsl_vector_view dcol = gsl_matrix_column(mjnd, t++);
@@ -331,7 +331,7 @@ pald::comp_rho(const gsl_matrix *mjt,
 	    }
 	}
 	gsl_matrix *mjnn = gsl_matrix_alloc(mjt->size1, nr);
-	assert(mjnn);
+	ULIB_ASSERT(mjnn);
 	for (size_t t = 0, j = 0; j < vri->size; ++j) {
 	    if (gsl_vector_get(vri, j)) {
 		gsl_vector_view dcol = gsl_matrix_column(mjnn, t++);
@@ -342,28 +342,28 @@ pald::comp_rho(const gsl_matrix *mjt,
 
 	gsl_matrix *mrm  = gsl_matrix_alloc(mjnn->size2, mjt->size2);
 	gsl_matrix *mrmp = gsl_matrix_alloc(mjnn->size2, mjnd->size2);
-	assert(mrm && mrmp);
-	assert(!gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0, mjnn, mjt,  0.0,  mrm));
-	assert(!gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0, mjnn, mjnd, 0.0, mrmp));	
+	ULIB_ASSERT(mrm && mrmp);
+	ULIB_ASSERT(!gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0, mjnn, mjt,  0.0,  mrm));
+	ULIB_ASSERT(!gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0, mjnn, mjnd, 0.0, mrmp));	
 
 	gsl_vector *vtd = gsl_vector_alloc(mrm->size1);
 	gsl_vector *vtn = gsl_vector_alloc(mrmp->size1);
 	gsl_vector *vtz = gsl_vector_alloc(mrmp->size1);
 	gsl_vector *vwn = gsl_vector_alloc(nv);
-	assert(vtd && vtn && vtz && vwn);
+	ULIB_ASSERT(vtd && vtn && vtz && vwn);
 	
-	assert(!gsl_blas_dgemv(CblasNoTrans, 1.0, mrm, vw, 0.0, vtd));
+	ULIB_ASSERT(!gsl_blas_dgemv(CblasNoTrans, 1.0, mrm, vw, 0.0, vtd));
 
 	for (size_t t = 0, i = 0; i < vw->size; ++i) {
 	    if (gsl_vector_get(vni, i))
 		gsl_vector_set(vwn, t++, gsl_vector_get(vw, i));
 	}
 
-	assert(!gsl_blas_dgemv(CblasNoTrans, 1.0, mrmp, vwn, 0.0, vtn));
+	ULIB_ASSERT(!gsl_blas_dgemv(CblasNoTrans, 1.0, mrmp, vwn, 0.0, vtn));
 	
 	double rho1, rho2, imp1, imp2;
 	gsl_matrix *mt = gsl_matrix_alloc(mrm->size1, mrm->size2);
-	assert(mt);
+	ULIB_ASSERT(mt);
 
 	// case 1: rho >= 0
 	gsl_vector_memcpy(vtz, vtd);
@@ -376,8 +376,8 @@ pald::comp_rho(const gsl_matrix *mjt,
 	else {
 	    positive_components(mt, mrm);
 	    gsl_vector *vt = gsl_vector_alloc(vtd->size);
-	    assert(vt);
-	    assert(!gsl_blas_dgemv(CblasNoTrans, 1.0, mt, vw, 0.0, vt));
+	    ULIB_ASSERT(vt);
+	    ULIB_ASSERT(!gsl_blas_dgemv(CblasNoTrans, 1.0, mt, vw, 0.0, vt));
 	    gsl_vector_memcpy(vtz, vtd);
 	    gsl_vector_div(vtz, vt);
 	    rho1 = gsl_vector_min(vtz);
@@ -396,7 +396,7 @@ pald::comp_rho(const gsl_matrix *mjt,
 	else {
 	    negative_components(mt, mrm);
 	    gsl_vector *vti = gsl_vector_alloc(mt->size1);
-	    assert(vti);
+	    ULIB_ASSERT(vti);
 	    for (size_t i = 0; i < vti->size; ++i) {
 		gsl_vector_const_view row = gsl_matrix_const_row(mt, i);
 		gsl_vector_set(vti, i, gsl_blas_dasum(&row.vector) != 0);
@@ -404,7 +404,7 @@ pald::comp_rho(const gsl_matrix *mjt,
 	    size_t nti = gsl_blas_dasum(vti);
 	    if (nti) {
 		gsl_matrix *mt1 = gsl_matrix_alloc(nti, mt->size2);
-		assert(mt1);
+		ULIB_ASSERT(mt1);
 		for (size_t t = 0, i = 0; i < vti->size; ++i) {
 		    if (gsl_vector_get(vti, i)) {
 			gsl_vector_view drow = gsl_matrix_row(mt1, t++);
@@ -413,15 +413,15 @@ pald::comp_rho(const gsl_matrix *mjt,
 		    }
 		}
 		gsl_vector *vtz1 = gsl_vector_alloc(nti);
-		assert(vtz1);
+		ULIB_ASSERT(vtz1);
 		for (size_t t = 0, i = 0; i < vtd->size; ++i) {
 		    if (gsl_vector_get(vti, i))
 			gsl_vector_set(vtz1, t++, gsl_vector_get(vtd, i));
 		}
 
 		gsl_vector *vt = gsl_vector_alloc(vtz1->size);
-		assert(vt);
-		assert(!gsl_blas_dgemv(CblasNoTrans, 1.0, mt1, vw, 0.0, vt));
+		ULIB_ASSERT(vt);
+		ULIB_ASSERT(!gsl_blas_dgemv(CblasNoTrans, 1.0, mt1, vw, 0.0, vt));
 		gsl_vector_div(vtz1, vt);
 		rho2 = gsl_vector_max(vtz1);
 		gsl_vector_free(vt);
@@ -477,13 +477,13 @@ void pald::operator()(problem *prob,
     size_t n = mxval->size2;
     size_t k = mfval->size1;
 
-    assert(mfval->size2 == niter);
-    assert(mxval->size1 == niter);
-    assert(vub->size    == k);
-    assert(niter > 0);
+    ULIB_ASSERT(mfval->size2 == niter);
+    ULIB_ASSERT(mxval->size1 == niter);
+    ULIB_ASSERT(vub->size    == k);
+    ULIB_ASSERT(niter > 0);
 
     gsl_vector *vt = gsl_vector_alloc(n);
-    assert(vt);
+    ULIB_ASSERT(vt);
 
     gsl_vector_memcpy(vt, vx0);
     prob->proj(vt);
@@ -501,7 +501,7 @@ void pald::operator()(problem *prob,
     gsl_vector *vni = gsl_vector_alloc(k);
     gsl_vector *vw  = gsl_vector_alloc(k);
     gsl_vector *vds = gsl_vector_alloc(n);
-    assert(mub && mny && mdx && mp && my && mjt && vni && vw && vds);
+    ULIB_ASSERT(mub && mny && mdx && mp && my && mjt && vni && vw && vds);
 
     for (size_t j = 0; j < bs; ++j) {
 	gsl_vector_view col = gsl_matrix_column(mub, j);

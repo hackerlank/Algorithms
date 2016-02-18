@@ -13,7 +13,6 @@
  * that file is legally binding.
  */
 
-#include <assert.h>
 #include <time.h>
 #include <math.h>
 #include <gsl/gsl_blas.h>
@@ -21,6 +20,7 @@
 #include <gsl/gsl_permutation.h>
 #include <ulib/util_log.h>
 #include <ulib/util_algo.h>
+#include <ulib/util_macro.h>
 #include <ulib/math_rand_prot.h>
 #include "mspd.h"
 
@@ -43,7 +43,7 @@ double mspd::unif()
 
 double mspd::kernel(const gsl_vector *vx, double tau)
 {
-    assert(tau > 0);
+    ULIB_ASSERT(tau > 0);
 
     double nrm = gsl_blas_dnrm2(vx);
     return exp(-nrm*nrm/2.0/tau/tau);
@@ -57,7 +57,7 @@ void mspd::perturb(problem *prob,
 		   gsl_matrix *mny,
 		   gsl_vector *vt)
 {
-    assert(mdx->size1 == mny->size2 && mdx->size2 == vt->size);
+    ULIB_ASSERT(mdx->size1 == mny->size2 && mdx->size2 == vt->size);
 
     double range = beta * pow(iter, -1.0/3.0);
 
@@ -80,7 +80,7 @@ mspd::ortho_proj(const gsl_matrix *mdx,
 		 double tau,
 		 gsl_matrix *mp)
 {
-    assert(mp->size1 == mdx->size2 && mp->size2 == mdx->size1);
+    ULIB_ASSERT(mp->size1 == mdx->size2 && mp->size2 == mdx->size1);
 
     int signum;
     gsl_matrix *m1 = gsl_matrix_calloc(mdx->size1, mdx->size1); // kernel matrix
@@ -90,7 +90,7 @@ mspd::ortho_proj(const gsl_matrix *mdx,
     gsl_permutation *perm = gsl_permutation_alloc(mdx->size2);
     gsl_vector_view vd;
     
-    assert(m1 && m2 && m3 && m4 && perm);
+    ULIB_ASSERT(m1 && m2 && m3 && m4 && perm);
 
     // compute the diagonal weight matrix
     vd = gsl_matrix_diagonal(m1);
@@ -100,13 +100,13 @@ mspd::ortho_proj(const gsl_matrix *mdx,
     }
 
     vd = gsl_matrix_diagonal(m2);
-    assert(!gsl_blas_dgemm(CblasTrans,   CblasNoTrans, 1.0, mdx, m1, 0.0, mp));
-    assert(!gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, mp, mdx, 0.0, m2));
-    assert(!gsl_vector_add_constant(&vd.vector, lambda));
-    assert(!gsl_linalg_LU_decomp(m2, perm, &signum));
-    assert(!gsl_linalg_LU_invert(m2, perm, m3));
-    assert(!gsl_blas_dgemm(CblasNoTrans, CblasTrans,   1.0, m3, mdx, 0.0, m4));
-    assert(!gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, m4, m1,  0.0, mp));
+    ULIB_ASSERT(!gsl_blas_dgemm(CblasTrans,   CblasNoTrans, 1.0, mdx, m1, 0.0, mp));
+    ULIB_ASSERT(!gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, mp, mdx, 0.0, m2));
+    ULIB_ASSERT(!gsl_vector_add_constant(&vd.vector, lambda));
+    ULIB_ASSERT(!gsl_linalg_LU_decomp(m2, perm, &signum));
+    ULIB_ASSERT(!gsl_linalg_LU_invert(m2, perm, m3));
+    ULIB_ASSERT(!gsl_blas_dgemm(CblasNoTrans, CblasTrans,   1.0, m3, mdx, 0.0, m4));
+    ULIB_ASSERT(!gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, m4, m1,  0.0, mp));
 
     gsl_matrix_free(m1);
     gsl_matrix_free(m2);
@@ -130,14 +130,14 @@ void mspd::operator()(problem *prob,
     size_t n = mxval->size2;
     size_t k = mfval->size1;
 
-    assert(mfval->size2 == niter);
-    assert(mxval->size1 == niter);
-    assert(vub->size    == k);
-    assert(niter > 0);
-    assert(k > 0);
+    ULIB_ASSERT(mfval->size2 == niter);
+    ULIB_ASSERT(mxval->size1 == niter);
+    ULIB_ASSERT(vub->size    == k);
+    ULIB_ASSERT(niter > 0);
+    ULIB_ASSERT(k > 0);
 
     gsl_vector *vt = gsl_vector_alloc(n);
-    assert(vt);
+    ULIB_ASSERT(vt);
 
     gsl_vector_memcpy(vt, vx0);
     prob->proj(vt);
@@ -153,7 +153,7 @@ void mspd::operator()(problem *prob,
     gsl_vector *vdw = gsl_vector_alloc(k);
     gsl_vector *vds = gsl_vector_alloc(bs);
     gsl_vector *vgs = gsl_vector_alloc(n);
-    assert(mny && mdx && mp && vw && vdw && vds && vgs);
+    ULIB_ASSERT(mny && mdx && mp && vw && vdw && vds && vgs);
 
     // vw = (1,0,...,0)^T
     gsl_vector_set(vw, 0, 1.0);
@@ -174,7 +174,7 @@ void mspd::operator()(problem *prob,
 	    gsl_vector_set(vds, i, ds);
 	}
 
-	assert(!gsl_blas_dgemv(CblasNoTrans, 1.0, mp, vds, 0.0, vgs));
+	ULIB_ASSERT(!gsl_blas_dgemv(CblasNoTrans, 1.0, mp, vds, 0.0, vgs));
 
 	double step = alpha/(1.0+alpha*lambda*j);
 
